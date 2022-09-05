@@ -4,21 +4,21 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 const BlogSchema = new mongoose.Schema( {
     title: {
         type:String,
-        require:true
+        required:true
     },
     body: {
         type:String,
-        require:true
+        required:true
     }, 
     authorId: {
         type: ObjectId,
         ref: "Author",
-        require:true, 
+        required:true, 
     }, 
     tags:[String], 
     category: {
         type:[String],
-        require:true //examples: [technology, entertainment, life style, food, fashion]
+        required:true //examples: [technology, entertainment, life style, food, fashion]
     }, 
     subcategory:[String], // examples[technology-[web development, mobile development, AI, ML etc]], 
     isDeleted: {
