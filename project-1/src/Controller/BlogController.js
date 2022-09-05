@@ -29,15 +29,12 @@ const createBlog = async function (req, res) {
 
 const getBlogs = async function (req, res) {
     try {
-        let byauthor = req.query.authorId;
-        let bycategory = req.query.category;
-        let bytags = req.query.tags;
-        let bysubcategory = req.query.subcategory;
         let temp = req.query
+        temp.isDeleted=false
+        temp.isPublished=true
         console.log(temp)
-        let Blogs = await blogModel.find({$and: [temp]})
-        //({$or:[{ $and: [{ isDeleted: false }, { isPublished: true }]},$or: [{ authorId: byauthor }, { category: bycategory }, { tags: bytags }, { subcategory: bysubcategory }]]} )
-        res.status(201).send({ data: Blogs })
+        let BlogsWithCond = await blogModel.find(temp)
+        res.status(201).send({ data: BlogsWithCond })
     }
     catch (error) {
         res.status(500).send({ error: error })
