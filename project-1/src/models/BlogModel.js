@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Schema.Types.ObjectId
 
-const bookSchema = new mongoose.Schema( {
+const BlogSchema = new mongoose.Schema( {
     title: {
         type:String,
         require:true
@@ -15,33 +15,23 @@ const bookSchema = new mongoose.Schema( {
         ref: "Author",
         require:true, 
     }, 
-    tags: {
-        type:[String]
-    }, 
+    tags:[String], 
     category: {
-        type:String,
+        type:[String],
         require:true //examples: [technology, entertainment, life style, food, fashion]
     }, 
-    subcategory: {
-        type:[String] // examples[technology-[web development, mobile development, AI, ML etc]] 
-    }, 
-    // createdAt, 
-    // updatedAt, 
-    // deletedAt: {when the document is deleted}, 
+    subcategory:[String], // examples[technology-[web development, mobile development, AI, ML etc]], 
     isDeleted: {
-        type:boolean, 
+        type:Boolean, 
         default: false
     }, 
-    publishedAt: String,//{when the blog is published}, 
     isPublished: {
-        type:boolean, 
+        type:Boolean, 
         default: false
     },
-    author_id: {
-        type: ObjectId,
-        ref: "Author"
-    }
+    publishedAt:Date, 
+    deletedAt:Date
 },{ timestamps: true });
 
 
-module.exports = mongoose.model('LibraryBook', bookSchema)
+module.exports = mongoose.model('Blog', BlogSchema)
