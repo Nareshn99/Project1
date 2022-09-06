@@ -27,20 +27,4 @@ const createBlog = async function (req, res) {
 
 
 
-const getBlogs = async function (req, res) {
-    try {
-        let temp = req.query
-        temp.isDeleted=false
-        temp.isPublished=true
-        console.log(temp)
-        let BlogsWithCond = await blogModel.find(temp)
-        res.status(201).send({ data: BlogsWithCond })
-    }
-    catch (error) {
-        res.status(500).send({ error: error })
-    }
-}
-
-
 module.exports.createBlog = createBlog
-module.exports.getBlogs = getBlogs
