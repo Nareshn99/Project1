@@ -73,32 +73,32 @@ const updateBlog = async function (req, res) {
 }
 
 
-const updateblog = async function (req, res) {
-    try {
-        let blogId = req.params.blogId;
-        if (!mongoose.Types.ObjectId.isValid(blogId)) {
-            return res.status(400).send({ status: false, msg: "BlogId is not valid,please enter valid ID" })
-        }
-        let DateandTime = new Date().toLocaleString()
-        let blog = await blogModel.findById(blogId)
-        if (blog.isDeleted == true) {
-            return res.status(404).send({ mdg: "Blog is not exists" })
-        }
-        if (blog.isPublished == false) {
-            let updateTime = await blogModel.findOneAndUpdate(
-                { _id: blogId },
-                { $set: { isPublished: true, publishedAt: DateandTime } })
-        }
-        let data = req.body;
-        let updateblog = await blogModel.findOneAndUpdate(
-            { _id: blogId, },
-            { $set: { title: data.title, body: data.body }, $push: { tags: data.tags, subcategory: data.subcategory } },
-            { new: true })
-        res.status(200).send({ msg: "successfully updated", updateblog })
-    } catch (error) {
-        res.status(500).send({ error: error.message })
-    }
-}
+// const updateblog = async function (req, res) {
+//     try {
+//         let blogId = req.params.blogId;
+//         if (!mongoose.Types.ObjectId.isValid(blogId)) {
+//             return res.status(400).send({ status: false, msg: "BlogId is not valid,please enter valid ID" })
+//         }
+//         let DateandTime = new Date().toLocaleString()
+//         let blog = await blogModel.findById(blogId)
+//         if (blog.isDeleted == true) {
+//             return res.status(404).send({ mdg: "Blog is not exists" })
+//         }
+//         if (blog.isPublished == false) {
+//             let updateTime = await blogModel.findOneAndUpdate(
+//                 { _id: blogId },
+//                 { $set: { isPublished: true, publishedAt: DateandTime } })
+//         }
+//         let data = req.body;
+//         let updateblog = await blogModel.findOneAndUpdate(
+//             { _id: blogId, },
+//             { $set: { title: data.title, body: data.body }, $push: { tags: data.tags, subcategory: data.subcategory } },
+//             { new: true })
+//         res.status(200).send({ msg: "successfully updated", updateblog })
+//     } catch (error) {
+//         res.status(500).send({ error: error.message })
+//     }
+// }
 
 const DeleteBlog = async function (req, res) {
     let blogId = req.params.blogId;
@@ -137,6 +137,6 @@ const deleteByQuery = async function (req, res) {
 module.exports.createBlog = createBlog
 module.exports.getBlogs = getBlogs
 module.exports.updateBlog = updateBlog
-module.exports.updateblog = updateblog
+//module.exports.updateblog = updateblog
 module.exports.DeleteBlog = DeleteBlog
 module.exports.deleteByQuery = deleteByQuery
