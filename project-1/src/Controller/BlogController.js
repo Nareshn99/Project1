@@ -40,7 +40,6 @@ const getBlogs = async function (req, res) {
     }
 }
 
-<<<<<<< HEAD
 const updateBlog = async function (req, res) {
     try {
         let BlogId = req.params.blogId;
@@ -90,10 +89,6 @@ const DeleteBlog = async function (req, res) {
 
 const deleteByQuery = async function (req, res) {
     try {
-=======
-const deleteByQuery = async function(req,res){
-    try{
->>>>>>> 3f6ee97b72869be9194d15f3503d95de345c610e
         let cond = req.query
         cond.isDeleted = false
         let deleted = await blogModel.updateMany(cond, { $set: { isDeleted: true } })
