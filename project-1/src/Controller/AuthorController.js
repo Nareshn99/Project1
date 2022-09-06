@@ -1,8 +1,8 @@
-const AuthorModel = require("../models/AuthorModel.js")
+const authorModel= require('../models/AuthorModel')
 
-createAuthor = async function(req,res){
+const createAuthor = async function(req,res){
     try{
-        let authorData = await AuthorModel.create(req.body)
+        let authorData = await authorModel.create(req.body)
         res.status(201).send(authorData)
     }
     catch(err){
