@@ -1,7 +1,7 @@
 const authorModel = require("../models/AuthorModel")
 const blogModel = require("../models/BlogModel")
 const mongoose = require('mongoose');
-const jwt = require("jsonwebtoken");
+
 
 const createBlog = async function (req, res) {
     try {
@@ -9,7 +9,6 @@ const createBlog = async function (req, res) {
         if (!mongoose.Types.ObjectId.isValid(authorId)) {
             return res.status(400).send({ status: false, msg: "AuthorId is not valid,please enter valid ID" })
         }
-
         let authorbyid = await authorModel.findById(authorId)
         if (!authorbyid) {
             return res.status(400).send({ status: false, msg: "Author is not exist" })
@@ -46,20 +45,17 @@ const updateblog = async function (req, res) {
         if (!mongoose.Types.ObjectId.isValid(blogId)) {
             return res.status(400).send({ status: false, msg: "BlogId is not valid,please enter valid ID" })
         }
-        let DateandTime = new Date().toLocaleString()
         let blog = await blogModel.findById(blogId)
-        if (blog.isDeleted == true) {
-            return res.status(404).send({ mdg: "Blog is not exists" })
+        if (req.pass.authorId !== blog.authorId) {
+            return res.status(403).send({ status: false, msg: "you are not authorised for this opretion" })
         }
-        if (blog.isPublished == false) {
-            let updateTime = await blogModel.findOneAndUpdate(
-                { _id: blogId },
-                { $set: { isPublished: true, publishedAt: DateandTime } })
+        if (blog.isDeleted == true) {
+            return res.status(404).send({ msg: "this Blog already deleted" })
         }
         let data = req.body;
         let updateblog = await blogModel.findOneAndUpdate(
-            { _id: blogId, },
-            { $set: { title: data.title, body: data.body }, $push: { tags: data.tags, subcategory: data.subcategory } },
+            { _id: blogId, isPublished: false },
+            { $set: { title: data.title, body: data.body, isPublished: true, publishedAt: new Date()}, $push: { tags: data.tags, subcategory: data.subcategory } },
             { new: true })
         res.status(200).send({ msg: "successfully updated", updateblog })
     } catch (error) {
@@ -68,17 +64,23 @@ const updateblog = async function (req, res) {
 }
 
 const DeleteBlog = async function (req, res) {
-    let blogId = req.params.blogId;
-    let blog = await blogModel.findById(blogId)
-    if (!blog) {
-        return res.status(400).send({ msg: "BlogId is not exists" })
-    }
-    let DateandTime = new Date().toLocaleString()
-    if (blog.isDeleted == false) {
-        let blog = await blogModel.findOneAndUpdate(
-            { _id: blogId },
-            { $set: { isDeleted: true, deletedAt: DateandTime } })
-        return res.status(200)
+    try {
+        let blogId = req.params.blogId;
+        let blog = await blogModel.findById(blogId)
+        if (req.pass.authorId !== blog.authorId) {
+            return res.status(403).send({ status: false, msg: "you are not authorised for this opretion" })
+        }
+        if (!blog) {
+            return res.status(400).send({ msg: "BlogId is not exists" })
+        }
+        if (blog.isDeleted == false) {
+            let blog = await blogModel.findOneAndUpdate(
+                { _id: blogId },
+                { $set: { isDeleted: true, deletedAt: new Date()}})
+        }
+        res.status(200).send({ msg: "Deleted successfully" })
+    } catch (err) {
+        res.status(500).send(err.message)
     }
 }
 
@@ -88,9 +90,8 @@ const deleteByQuery = async function (req, res) {
         cond.isDeleted = false
         let deleted = await blogModel.updateMany(cond, { $set: { isDeleted: true } })
         let temp = deleted.modifiedCount.toString()
-        console.log(cond)
         if (temp == 0) {
-            res.status(404).send({ status: false, msg: "No usch blog exists" })
+            res.status(404).send({ status: false, msg: "blog not found " })
         } else {
             res.status(201).send({ status: true, msg: `${temp} blogs deleted` })
         }
