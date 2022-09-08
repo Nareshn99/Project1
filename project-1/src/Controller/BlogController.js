@@ -5,15 +5,33 @@ const mongoose = require('mongoose');
 
 const createBlog = async function (req, res) {
     try {
-        let authorId = req.body.authorId
-        if (!mongoose.Types.ObjectId.isValid(authorId)) {
+        let blog = req.body
+        if (!blog.title) {
+            return res.status(400).send({ status: false, msg: "provide blog title. it's mandatory" })
+        }
+        let checktitle = await blogModel.findOne({ title: blog.title })
+        if (checktitle) {
+            return res.status(400).send({ status: false, msg: "this title is already reserved" })
+        }
+        if (!blog.body) {
+            return res.status(400).send({ status: false, msg: "provide blog body. it's mandatory" })
+        }
+        if (!blog.category) {
+            return res.status(400).send({ status: false, msg: "please enter your blog category. it's mandatory" })
+        }
+        if (typeof (blog.isDeleted && blog.isPublished) !== "boolean") {
+            return res.status(400).send({ status: false, msg: "contains only boolean value both isDeleted and isPablished" })
+        }
+        if (!blog.authorId) {
+            return res.status(400).send({ status: false, msg: "Please provide authorId. it's mandatory" })
+        }
+        if (!mongoose.Types.ObjectId.isValid(blog.authorId)) {
             return res.status(400).send({ status: false, msg: "AuthorId is not valid,please enter valid ID" })
         }
-        let authorbyid = await authorModel.findById(authorId)
+        let authorbyid = await authorModel.findById(blog.authorId)
         if (!authorbyid) {
             return res.status(400).send({ status: false, msg: "Author is not exist" })
         }
-        let blog = req.body
         if (blog.isDeleted == true) { blog["deletedAt"] = Date.now() }
         if (blog.isPublished == true) { blog["publishedAt"] = Date.now() }
         let blogCreated = await blogModel.create(blog)
@@ -32,6 +50,9 @@ const getBlogs = async function (req, res) {
         temp.isDeleted = false
         temp.isPublished = true
         let BlogsWithCond = await blogModel.find(temp)
+        if (BlogsWithCond.length === 0) {
+            return res.status(400).send({ status: false, msg: `blog not found for this ${temp}` })
+        }
         res.status(201).send({ data: BlogsWithCond })
     }
     catch (error) {
@@ -67,7 +88,7 @@ const DeleteBlog = async function (req, res) {
     try {
         let blogId = req.params.blogId;
         let blog = await blogModel.findById(blogId)
-        if (req.pass.authorId !== blog.authorId.toString()){
+        if (req.pass.authorId !== blog.authorId.toString()) {
             return res.status(403).send({ status: false, msg: "you are not authorised for this opretion" })
         }
         if (!blog) {
@@ -87,12 +108,10 @@ const DeleteBlog = async function (req, res) {
 const deleteByQuery = async function (req, res) {
     try {
         let cond = req.query
-        if(Object.keys(cond).length === 0){
-            return res.status(400).send({status:false,msg:"kahana kya chahate ho"})
+        if (Object.keys(cond).length === 0) {
+            return res.status(400).send({ status: false, msg: "kahana kya chahate ho" })
         }
         cond.isDeleted = false
-        // let blogs= await blogModel.find(cond)
-        // res.send(blogs)
         let deleted = await blogModel.updateMany(cond, { $set: { isDeleted: true } })
         let temp = deleted.modifiedCount.toString()
         if (temp == 0) {

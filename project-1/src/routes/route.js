@@ -1,10 +1,8 @@
-const { Router } = require('express')
 const express = require('express')
 const router = express.Router()
 const AuthorController= require("../Controller/AuthorController")
 const BlogController= require("../Controller/BlogController")
 const middleware= require("../middlewares/auth")
-const BlogModel = require('../models/BlogModel')
 
 router.get("/test-me",function(req,res){
     res.send("maari api testing")
