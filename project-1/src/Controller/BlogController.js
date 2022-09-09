@@ -6,8 +6,12 @@ const mongoose = require('mongoose');
 const createBlog = async function (req, res) {
     try {
         let blog = req.body
+        let alphabets = /^[A-Z a-z 0-9]{8,30}$/
         if (!blog.title) {
             return res.status(400).send({ status: false, msg: "provide blog title. it's mandatory" })
+        }
+        if (!alphabets.test(blog.title)) {
+            return res.status(400).send({ status: false, msg: "blog title contains only string form" })
         }
         let checktitle = await blogModel.findOne({ title: blog.title })
         if (checktitle) {
@@ -16,11 +20,16 @@ const createBlog = async function (req, res) {
         if (!blog.body) {
             return res.status(400).send({ status: false, msg: "provide blog body. it's mandatory" })
         }
+        if (!alphabets.test(blog.body)) {
+            return res.status(400).send({ status: false, msg: "blog body contains only string form" })
+        }
         if (!blog.category) {
             return res.status(400).send({ status: false, msg: "please enter your blog category. it's mandatory" })
         }
-        if (typeof (blog.isDeleted && blog.isPublished) !== "boolean") {
-            return res.status(400).send({ status: false, msg: "contains only boolean value both isDeleted and isPablished" })
+        if (blog.isPublished) {
+            if (typeof (blog.isPublished) !== "boolean") {
+                return res.status(400).send({ status: false, msg: "contains only boolean value both isDeleted and isPablished" })
+            }
         }
         if (!blog.authorId) {
             return res.status(400).send({ status: false, msg: "Please provide authorId. it's mandatory" })
@@ -51,7 +60,7 @@ const getBlogs = async function (req, res) {
         temp.isPublished = true
         let BlogsWithCond = await blogModel.find(temp)
         if (BlogsWithCond.length === 0) {
-            return res.status(400).send({ status: false, msg: `blog not found for this ${temp}` })
+            return res.status(400).send({ status: false, msg: `blog not found` })
         }
         res.status(201).send({ data: BlogsWithCond })
     }
@@ -74,6 +83,16 @@ const updateblog = async function (req, res) {
             return res.status(404).send({ msg: "BlogId is not exists" })
         }
         let data = req.body;
+        let titlealphabets = /^[A-Z a-z 0-9]{8,30}$/
+        let bodyalphabets = /^[A-Z a-z 0-9]{10,2000}$/
+        if (data.title == "") { return res.status(400).send({ status: false, msg: "blog body is empty" }) }
+        if (data.title) {
+            if (!titlealphabets.test(data.title)) return res.status(400).send({ status: false, msg: "title must contain only letters and first letter is capital" })
+        }
+        if (data.body == "") { return res.status(400).send({ status: false, msg: "blog body is empty" }) }
+        if (data.body) {
+            if (!bodyalphabets.test(data.body)) return res.status(400).send({ status: false, msg: "title must contain only letters and first letter is capital" })
+        }
         let updateblog = await blogModel.findOneAndUpdate(
             { _id: blogId },
             { $set: { title: data.title, body: data.body, isPublished: true, publishedAt: new Date() }, $push: { tags: data.tags, subcategory: data.subcategory } },

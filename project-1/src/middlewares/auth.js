@@ -6,12 +6,13 @@ const auth = function (req, res, next) {
         if (!token) {
             res.status(400).send({ err: "you are not login" })
         }
-        let decodedtoken = jwt.verify(token, "harikesh-9690-chaudhary-8958-jaat-2606-boy")
-        if (!decodedtoken) {
-            res.status(403).send({ err: "this token invalid" })
+        try {
+            let decodedtoken = jwt.verify(token, "harikesh-9690-chaudhary-8958-jaat-2606-boy")
+            req.pass = decodedtoken;
+            next()
+        } catch (err) {
+            return res.status(400).send({ status: false, msg: `${err.message} please check your token` })
         }
-        req.pass = decodedtoken;
-        next()
     } catch (err) {
         res.status(500).send(err.message)
     }
