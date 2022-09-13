@@ -21,9 +21,9 @@ router.delete("/blogs/:blogId",middleware.auth, BlogController.DeleteBlog)
 router.delete("/blogs",middleware.auth, BlogController.deleteByQuery)
 
 
-// router.post("/blog", async function(req, res){
-//     let forupdate= await BlogModel.updateMany({isDeleted:true},{isDeleted:false})
-//     res.send(forupdate)
-// })
+router.post("/blog", async function(req, res){
+    let forupdate= await BlogModel.updateMany({isDeleted:true},{isDeleted:false})
+    res.send(forupdate)
+})
 
 module.exports = router
