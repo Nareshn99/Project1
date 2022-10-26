@@ -28,7 +28,7 @@ const createBlog = async function (req, res) {
         }
         if (blog.isPublished) {
             if (typeof (blog.isPublished) !== "boolean") {
-                return res.status(400).send({ status: false, msg: "contains only boolean value both isDeleted and isPablished" })
+                return res.status(400).send({ status: false, msg: "contains only boolean value isPablished" })
             }
             if (blog.isPublished == true) { blog["publishedAt"] = Date.now() }
         }
@@ -99,7 +99,7 @@ const updateblog = async function (req, res) {
         let data = req.body;
         let titlealphabets = /^[A-Z a-z 0-9]{8,30}$/
         let bodyalphabets = /^[A-Z a-z 0-9]{10,2000}$/
-        if (data.title == "") { return res.status(400).send({ status: false, msg: "blog body is empty" }) }
+        if (data.title == "") { return res.status(400).send({ status: false, msg: "title body is empty" }) }
         if (data.title) {
             if (!titlealphabets.test(data.title)) return res.status(400).send({ status: false, msg: "title must contain only letters and first letter is capital" })
         }
@@ -125,13 +125,10 @@ const DeleteBlog = async function (req, res) {
         }
         let blog = await blogModel.findOne({ _id: blogId, isDeleted: false })
         if (!blog){
-            return res.status(404).send({ msg: "Blog is not found for this ID" })
+            return res.status(404).send({status: false, msg: "Blog is not found for this ID" })
         } 
         if (req.pass.authorId !== blog.authorId.toString()) {
             return res.status(403).send({ status: false, msg: "you are not authorised for this opretion" })
-        }
-        if (!blog) {
-            return res.status(400).send({ msg: "this Blog already deleted" })
         }
         if (blog.isDeleted == false) {
             let blog = await blogModel.findOneAndUpdate(
@@ -147,15 +144,15 @@ const DeleteBlog = async function (req, res) {
 const deleteByQuery = async function (req, res) {
     try {
         let filterquery = req.query
-
+console.log(filterquery);
         let blog = await blogModel.find({ authorId: req.pass.authorId, isDeleted: false })
         if (blog.length === 0) {
             return res.status(404).send({ status: false, msg: "you don't have any Blog" })
         }
-        filterquery.authorId = req.pass.authorId
         if (Object.keys(filterquery).length === 0) {
             return res.status(400).send({ status: false, msg: "No query params received, aborting delete operation" })
         }
+        filterquery.authorId = req.pass.authorId
         filterquery.isDeleted = false
         if (filterquery.authorId) {
             if (!mongoose.Types.ObjectId.isValid(filterquery.authorId)) {

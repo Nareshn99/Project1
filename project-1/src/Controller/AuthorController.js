@@ -45,7 +45,7 @@ const createAuthor = async function (req, res) {
             return res.send({ status: false, msg: "Enter valid password" })
         }
         let authorData = await authorModel.create(req.body)
-        res.status(201).send(authorData)
+        res.status(201).send({data:authorData})
     }
     catch (err) {
         res.status(500).send(err.message)

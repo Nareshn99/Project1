@@ -4,7 +4,7 @@ const auth = function (req, res, next) {
     try {
         let token = req.headers['x-api-key']
         if (!token) {
-            res.status(400).send({ err: "you are not login" })
+            res.status(400).send({status: false, err: "you are not login" })
         }
         try {
             let decodedtoken = jwt.verify(token, "harikesh-9690-chaudhary-8958-jaat-2606-boy")
